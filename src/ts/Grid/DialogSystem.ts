@@ -96,13 +96,13 @@ export default class DialogSystem {
 
     // Check is its left, right, up or down
     if (event.key === "ArrowLeft") {
-      topLeftCell = this._camera.move({ x: 10, y: 0 });
-    } else if (event.key === "ArrowRight") {
       topLeftCell = this._camera.move({ x: -10, y: 0 });
+    } else if (event.key === "ArrowRight") {
+      topLeftCell = this._camera.move({ x: 10, y: 0 });
     } else if (event.key === "ArrowUp") {
-      topLeftCell = this._camera.move({ x: 0, y: 10 });
-    } else if (event.key === "ArrowDown") {
       topLeftCell = this._camera.move({ x: 0, y: -10 });
+    } else if (event.key === "ArrowDown") {
+      topLeftCell = this._camera.move({ x: 0, y: 10 });
     }
 
     // Check if the camera moved
