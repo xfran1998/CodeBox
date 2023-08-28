@@ -38,15 +38,15 @@
     initializeCanvas();
 
     canvas.addEventListener('mousedown', (event) => {
-      
+      DialogSystem.handleLeftClick(event);
     });
 
     canvas.addEventListener('mouseup', () => {
-      // box1.endDrag();
+      DialogSystem.handleLeftClickUp();
     });
 
     canvas.addEventListener('mousemove', (event) => {
-      // box1.handleDrag(event);
+      DialogSystem.handleMouseMove(event);
     });
 
     // right mouse button

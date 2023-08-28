@@ -1,4 +1,5 @@
 import type BoxDialog from "../Box/BoxDialog";
+import Render from "../Render/Render";
 import type { Point } from "../interfaces/Point";
 import type { Size } from "../interfaces/Size";
 
@@ -20,9 +21,6 @@ export default class Grid {
   private _numRows: number = 0; // Number of rows in the grid
   private _numColumns: number = 0; // Number of columns in the grid
 
-  // Grid layout
-  private _rowSize: number = 210; // Height of each row in pixels
-  private _columnSize: number = 210; // Width of each column in pixels
   private _grid = new Map<string, Array<BoxDialog>>(); // Map of the grid, each key is a string with the format "row-column" and each value is an array of boxes
 
   constructor(sizeCanvas: Size) {
@@ -31,23 +29,22 @@ export default class Grid {
 
     this._currentTopLeft = { x: 0, y: 0 };
     this._size = sizeCanvas;
-
-    this._numColumns = Math.ceil(this._size.w / this._columnSize);
-    this._numRows = Math.ceil(this._size.h / this._rowSize);
   }
 
   private _addToGrid(box: BoxDialog): void {
-    // Calculate the row and column of the box
-    const row: number = Math.floor(box._y / this._rowSize);
-    const column: number = Math.floor(box._x / this._columnSize);
+    const row: number = Math.floor(box.topLeft.y / Render.cellSize.h);
+    const column: number = Math.floor(box.topLeft.x / Render.cellSize.w);
 
     // Add the box to the grid
     const key: string = `${row}-${column}`;
+
+    console.log("Adding box to grid: ", this._grid.get(key));
     if (this._grid.has(key)) {
       this._grid.get(key)?.push(box);
     } else {
       this._grid.set(key, [box]);
     }
+    console.log("Adding box to grid: ", this._grid.get(key));
   }
 
   public get grid() : Map<string, Array<BoxDialog>> {
@@ -63,7 +60,29 @@ export default class Grid {
 
   // Add a box to the grid
   // Change the position of the box to the grid position knowing the spawn position and the _currentTopLeft position
-  public addBox(box: BoxDialog, worldPos: Point): void {
+  public addBox(box: BoxDialog): void {
+    console.log("Adding box: ", box);
     this._addToGrid(box);
   }
+
+  public removeBox(box: BoxDialog): void {
+    console.log("Removing box");
+
+    // Calculate the row and column of the box
+    const row: number = Math.floor(box.topLeft.y / Render.cellSize.h);
+    const column: number = Math.floor(box.topLeft.x / Render.cellSize.w);
+
+    // Add the box to the grid
+    const key: string = `${row}-${column}`;
+    if (this._grid.has(key)) {
+      const index = this._grid.get(key)?.indexOf(box);
+      if (index !== undefined) {
+        this._grid.get(key)?.splice(index, 1);
+        return;
+      }
+    }
+
+    console.log("Box not found");
+  }
+
 }

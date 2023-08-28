@@ -42,12 +42,12 @@ export default class Box implements Rectangle {
     this._topLeft = newPosition;
   }
 
-  public isTriggered(clickPos: Point): boolean {
+  public isTriggered(clickWorldPos: Point): boolean {
     return (
-      clickPos.x >= this._topLeft.x &&
-      clickPos.x <= this._topLeft.x + this._size.w &&
-      clickPos.y >= this._topLeft.y &&
-      clickPos.y <= this._topLeft.y + this._size.h
+      clickWorldPos.x >= this._topLeft.x &&
+      clickWorldPos.x <= this._topLeft.x + this._size.w &&
+      clickWorldPos.y >= this._topLeft.y &&
+      clickWorldPos.y <= this._topLeft.y + this._size.h
     );
   }
 }

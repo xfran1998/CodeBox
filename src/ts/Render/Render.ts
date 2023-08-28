@@ -44,41 +44,75 @@ export default class Render {
     };
   }
 
+  public static get renderBoxes(): Array<BoxDialog> {
+    return Render._renderBoxes;
+  }
+
+  public static get topLeftCell(): Rectangle {
+    return Render._topLeftCell;
+  }
+
+  public static get numRowsRender(): number {
+    return Render._numRowsRender;
+  }
+
+  public static get numColumnsRender(): number {
+    return Render._numColumnsRender;
+  }
+
+  public static get cellSize(): Size {
+    return Render._cellSize;
+  }
+
   public static updateRenderBoxes(refGrid: Grid, hardReload: boolean = false): void {
     let topLeftCell: Point = Render._mainCamera.getTopLeftCell().topLeft;
-    console.log("topLeftCell: ", topLeftCell);
     
-    // add the offset to the topLeftCell
+    // Calcula el nuevo topLeftCell aplicando el offset
     topLeftCell.x -= Render.offserRenderCells;
     topLeftCell.y -= Render.offserRenderCells;
     
-    // check if the topLeftCell is the same in case not update the renderBoxes
+    // Si el topLeftCell no cambió y no hay necesidad de recarga forzada, no es necesario realizar cambios
     if (topLeftCell.x === Render._topLeftCell.topLeft.x && topLeftCell.y === Render._topLeftCell.topLeft.y && !hardReload) {
       return;
     }
+
+    console.log("topLeftCell: ", topLeftCell);
+    console.log("grid: ", refGrid.grid);
     
-    Render._renderBoxes = [];
+    // Utiliza un set para mantener un registro eficiente de los nuevos boxes
+    const newRenderBoxesSet = new Set<BoxDialog>();
 
-    console.log("updateRenderBoxes");
-
-    // iterate over the rows and columns to get all the boxes inside the render area
-    for (let i = Render._numRowsRender+Render.offserRenderCells; i >= 0; i--) {
-      for (let j = Render._numColumnsRender+Render.offserRenderCells; j >= 0; j--) {
-        const key: string = `${i + topLeftCell.y}-${
-          j + topLeftCell.x
-          }`;
+    // Itera sobre las celdas en el área de renderizado
+    for (let i = Render._numRowsRender + Render.offserRenderCells; i >= 0; i--) {
+      for (let j = Render._numColumnsRender + Render.offserRenderCells; j >= 0; j--) {
+        const key: string = `${i + topLeftCell.y}-${j + topLeftCell.x}`;
         
-        console.log("key: ", key);
         if (refGrid.grid.has(key)) {
-          Render._renderBoxes.push(...refGrid.grid.get(key)!);
+          const boxesInCell = refGrid.grid.get(key)!;
+          // Agrega los boxes de esta celda al conjunto
+          for (const box of boxesInCell) {
+            newRenderBoxesSet.add(box);
+          }
         }
       }
-    }
+    }    
 
+    // Convierte el set de nuevos boxes en un array y ordena los elementos según el orden original
+    const newRenderBoxesArray = Array.from(newRenderBoxesSet);
+    newRenderBoxesArray.sort((box1, box2) => {
+        const index1 = Render._renderBoxes.indexOf(box1);
+        const index2 = Render._renderBoxes.indexOf(box2);
+        return index1 - index2;
+    });
+
+    // Actualiza Render._renderBoxes con los nuevos boxes
+    Render._renderBoxes = newRenderBoxesArray;
+
+    // Actualiza topLeftCell en Render._topLeftCell
     Render._topLeftCell.topLeft = topLeftCell;
-    console.log(refGrid.grid);
+
     console.log("Render._renderBoxes: ", Render._renderBoxes);
-  }
+}
 
   public static drawGrid(ctx: CanvasRenderingContext2D, grid: Grid): void {
     // Draw the grid
@@ -119,7 +153,6 @@ export default class Render {
     ctx.lineWidth = 1;
 
     for (const box of Render._renderBoxes) {
-      console.log("box: ", box);
       box.draw(ctx);
     }
   }
@@ -140,5 +173,21 @@ export default class Render {
       x: worldPosition.x - Render._mainCamera.position.x + Render._mainCamera.size.w / 2,
       y: worldPosition.y - Render._mainCamera.position.y + Render._mainCamera.size.h / 2,
     };
+  }
+
+  public static setLastBox(box: BoxDialog): void {
+    console.log("box: ", box);
+
+    const index = Render._renderBoxes.indexOf(box);
+
+    if (index === -1) {
+      console.log("Box not found");
+      return;
+    }
+
+    Render._renderBoxes.splice(index, 1);
+    Render._renderBoxes.push(box);    
+
+    console.log("Render._renderBoxes: ", Render._renderBoxes);
   }
 }
