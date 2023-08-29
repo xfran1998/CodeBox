@@ -30,7 +30,6 @@
   };
 
   onMount(() => {
-
     document.addEventListener('keydown', (event) => {
       DialogSystem.handleKeyDown(event);
     });
@@ -38,6 +37,9 @@
     initializeCanvas();
 
     canvas.addEventListener('mousedown', (event) => {
+      // check if left mouse button
+      if (event.button !== 0) return;
+
       DialogSystem.handleLeftClick(event);
     });
 

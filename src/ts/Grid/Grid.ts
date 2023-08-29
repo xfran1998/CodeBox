@@ -13,7 +13,6 @@ export default class Grid {
 
   // For displaying only the boxes that are in the view
   private _currentTopLeft: Point; // Top left corner of the current view
-
   
   private _size: Size; // Size of the screen (canvas)
 

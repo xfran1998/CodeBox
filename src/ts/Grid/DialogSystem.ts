@@ -1,6 +1,9 @@
 import BoxDialog from "../Box/BoxDialog";
+import { Statement } from "../Enums/Statements";
 import Camera from "../Render/Camera";
 import Render from "../Render/Render";
+import For from "../Statements/For";
+import If from "../Statements/If";
 import type { Point } from "../interfaces/Point";
 import type { Rectangle } from "../interfaces/Rectangle";
 import Grid from "./Grid";
@@ -10,9 +13,11 @@ export default class DialogSystem {
   private _ctx: CanvasRenderingContext2D;
   private _grid: Grid;
   private _camera: Camera;
+  private _currentDialogType: Statement = Statement.For;
 
   // for moving the grid
-  private _activeBox: BoxDialog = null;
+  private _dragBox: BoxDialog = null; // for dragging a box
+  private _activeBox: BoxDialog = null; // for special actions on a active box
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this._canvas = canvas;
@@ -48,12 +53,34 @@ export default class DialogSystem {
     // Check if the user clicked on a box
     const box = this._getBoxFromClick(worldPos);
 
-    if (!box) return;
+    if (!box) {
+      this._deselectBox();
+      this.draw();
+
+      return;
+    }
+
+    this._selectBox(box);    
 
     this._startDrag(viewPos, box);
     Render.setLastBox(box); // adding to the render but not to the grid
     // Redraw the grid
     this.draw();
+  }
+
+  private _deselectBox(): void {
+    if (!this._activeBox) return;
+
+    this._activeBox.isSelected = false;
+    this._activeBox = null;
+  }
+
+  private _selectBox(box: BoxDialog): void {
+    // deselect last box
+    this._deselectBox();
+
+    this._activeBox = box;
+    this._activeBox.isSelected = true;
   }
 
   public handleLeftClickUp(event: MouseEvent): void {
@@ -78,16 +105,26 @@ export default class DialogSystem {
 
     console.log('worldPos: ', worldPos)
     
-    const box = new BoxDialog( worldPos, {w: 100, h: 100}, 10, this._canvas, this._ctx);
+    let box = this._createBox(this._currentDialogType, worldPos);
+    
+    this._selectBox(box);
     
     // TEST, add a box to the grid
     this._grid.addBox(box);
 
-    // update the render
-    Render.updateRenderBoxes(this._grid, true);
+    // add it to the render boxes
+    Render.addBox(box);
+    
 
     // Redraw the grid
     this.draw();
+
+    // TESTING ONLY
+    if (this._currentDialogType === Statement.For) {
+      this._currentDialogType = Statement.If;
+    } else {
+      this._currentDialogType = Statement.For;
+    }
   }
 
   public handleKeyDown(event: KeyboardEvent): void {
@@ -122,8 +159,8 @@ export default class DialogSystem {
   }
 
   private _startDrag(viewPos: Point, box: BoxDialog): void {
-    this._activeBox = box;
-    this._activeBox.startDrag(viewPos);    
+    this._dragBox = box;
+    this._dragBox.startDrag(viewPos);    
 
     // remove from the grid array
     this._grid.removeBox(box);
@@ -132,18 +169,18 @@ export default class DialogSystem {
   }
 
   private _endDrag() : void {
-    if (!this._activeBox) return;
+    if (!this._dragBox) return;
     
     // Add the box to the grid
-    this._grid.addBox(this._activeBox);
+    this._grid.addBox(this._dragBox);
     
-    this._activeBox = null;
+    this._dragBox = null;
   }
 
   private _handleDrag(event: MouseEvent) : void {
-    if (!this._activeBox) return;
+    if (!this._dragBox) return;
 
-    this._activeBox.handleDrag(event);
+    this._dragBox.handleDrag(event);
     this.draw();
   }
 
@@ -160,4 +197,21 @@ export default class DialogSystem {
 
     return null;
   }
+
+  private _createBox(type: Statement, position: Point): BoxDialog {
+
+    const size = { w: 100, h: 100 };
+    const borderRadius = 10;
+  
+    switch (type) {
+      case Statement.If:
+        return new If(position, size, borderRadius, this._canvas, this._ctx);
+      case Statement.For:
+        return new For(position, size, borderRadius, this._canvas, this._ctx);
+      // Add more cases for other statement types if needed
+      default:
+        throw new Error(`Unsupported statement type: ${type}`);
+    }
+  }
+  
 }

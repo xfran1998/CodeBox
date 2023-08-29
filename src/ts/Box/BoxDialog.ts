@@ -1,3 +1,4 @@
+import type { Statement } from "../Enums/Statements";
 import type Camera from "../Render/Camera";
 import Render from "../Render/Render";
 import type { Point } from "../interfaces/Point";
@@ -11,6 +12,15 @@ class BoxDialog extends Box {
   private _offsetY: number = 0;
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
+  private _type: Statement;
+  private _title: string;
+
+  private static readonly _titleHeight: number = 20;
+  private static readonly _tittleTopPadding: number = 5;
+  private static readonly _borderNormalSize: number = 2;
+  private static readonly _borderSelectedSize: number = 5;
+  private static readonly _strokeNormalColor: string = 'black';
+  private static readonly _strokeSelectedColor: string = '#f1f';
 
   constructor(
     position: Point,
@@ -19,14 +29,15 @@ class BoxDialog extends Box {
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
     fillColor: string = 'white',
+    type: Statement
   ) {
     super(position, size);
     this._borderRadius = borderRadius;
     this._fillColor = fillColor;
     this._canvas = canvas;
     this._ctx = ctx;
-
-    console.log('BoxDialog created');
+    this._type = type;
+    this._title = this._type;
   }
 
   public startDrag(viewPos: Point) {
@@ -44,6 +55,8 @@ class BoxDialog extends Box {
   public draw(ctx: CanvasRenderingContext2D) {
     // Get world position
     const viewPos = Render.worldToView(this.topLeft);
+    const strokeColor = this.isSelected ? BoxDialog._strokeSelectedColor : BoxDialog._strokeNormalColor;
+    const strokeSize = this.isSelected ? BoxDialog._borderSelectedSize : BoxDialog._borderNormalSize;
     
     // draw a rectangle with rounded corners
     ctx.beginPath();
@@ -57,9 +70,17 @@ class BoxDialog extends Box {
     ctx.quadraticCurveTo(viewPos.x, viewPos.y + this._h, viewPos.x, viewPos.y + this._h - this._borderRadius);
     ctx.lineTo(viewPos.x, viewPos.y + this._borderRadius);
     ctx.quadraticCurveTo(viewPos.x, viewPos.y, viewPos.x + this._borderRadius, viewPos.y);
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeSize;
     ctx.stroke();
     ctx.fillStyle = this._fillColor;
     ctx.fill();
+
+    // Draw the title
+    ctx.font = `${BoxDialog._titleHeight}px Arial`;
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.fillText(this._title, viewPos.x + this._w / 2, viewPos.y + BoxDialog._titleHeight + BoxDialog._tittleTopPadding);
   }
 
   public isDraggableBarClicked(event: MouseEvent) {

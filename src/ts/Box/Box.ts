@@ -38,6 +38,14 @@ export default class Box implements Rectangle {
     return this._size.h;
   }
 
+  get isSelected(): boolean {
+    return this._isSelected;
+  }
+
+  set isSelected(value: boolean) {
+    this._isSelected = value;
+  }
+
   public changePosition(newPosition: Point): void {
     this._topLeft = newPosition;
   }

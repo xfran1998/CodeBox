@@ -157,6 +157,10 @@ export default class Render {
     }
   }
 
+  public static addBox(box: BoxDialog): void {
+    Render._renderBoxes.push(box);
+  }
+
   public static getBoxesRender(): Array<BoxDialog> {
     return Render._renderBoxes;
   }
