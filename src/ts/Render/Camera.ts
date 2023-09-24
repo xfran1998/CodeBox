@@ -24,6 +24,7 @@ export default class Camera {
   private _position: Point;
   private _size: Size;
   private _cellSize: Size;
+  private _deltaPosition: Point = { x: 0, y: 0 };
 
   constructor(position: Point, size: Size, cellSize: Size) {
     this._position = position;
@@ -68,5 +69,13 @@ export default class Camera {
     this._position.y += deltaPosition.y;
 
     return this.getTopLeftCell();
+  }
+
+  public get deltaPosition(): Point {
+    return this._deltaPosition;
+  }
+
+  public set deltaPosition(deltaPosition: Point) {
+    this._deltaPosition = deltaPosition;
   }
 }

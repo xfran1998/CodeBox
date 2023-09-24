@@ -16,10 +16,10 @@ class BoxDialog extends Box {
   private _title: string;
 
   private static readonly _titleHeight: number = 20;
-  private static readonly _tittleTopPadding: number = 5;
-  private static readonly _borderNormalSize: number = 2;
+  private static readonly _tittleTopPadding: number = 2;
+  private static readonly _borderNormalSize: number = 3;
   private static readonly _borderSelectedSize: number = 5;
-  private static readonly _strokeNormalColor: string = 'black';
+  private static readonly _strokeNormalColor: string = '#9999';
   private static readonly _strokeSelectedColor: string = '#f1f';
 
   constructor(
@@ -46,21 +46,29 @@ class BoxDialog extends Box {
   }
 
   public handleDrag(event: MouseEvent) {
-    this.changePosition({ x: this.topLeft.x + (event.offsetX - this._offsetX), y: this.topLeft.y + (event.offsetY - this._offsetY) });
-    
+    super.move({ x: event.offsetX - this._offsetX, y: event.offsetY - this._offsetY });
+
     this._offsetX = event.offsetX;
     this._offsetY = event.offsetY;
   }
 
+  public move(deltaPosition: Point): void {
+    // Change current position
+    super.move({ x: deltaPosition.x, y: deltaPosition.y });
+  }
+
+  public getViewPos(): Point {
+    return Render.worldToView(this.topLeft);
+  }
+
   public draw(ctx: CanvasRenderingContext2D) {
     // Get world position
-    const viewPos = Render.worldToView(this.topLeft);
+    const viewPos = this.getViewPos();
     const strokeColor = this.isSelected ? BoxDialog._strokeSelectedColor : BoxDialog._strokeNormalColor;
     const strokeSize = this.isSelected ? BoxDialog._borderSelectedSize : BoxDialog._borderNormalSize;
     
     // draw a rectangle with rounded corners
     ctx.beginPath();
-    ctx.moveTo(viewPos.x + this._borderRadius, viewPos.y);
     ctx.moveTo(viewPos.x + this._borderRadius, viewPos.y);
     ctx.lineTo(viewPos.x + this._w - this._borderRadius, viewPos.y);
     ctx.quadraticCurveTo(viewPos.x + this._w, viewPos.y, viewPos.x + this._w, viewPos.y + this._borderRadius);

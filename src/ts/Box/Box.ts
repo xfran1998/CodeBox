@@ -1,41 +1,12 @@
 import type { Point } from "../interfaces/Point";
 import type { Size } from "../interfaces/Size";
-import type { Rectangle } from "../interfaces/Rectangle";
+import BoxComponent from "./Components/BoxComponent";
 
-export default class Box implements Rectangle {
-  private _topLeft: Point;
-  private _size: Size;
+export default class Box extends BoxComponent {
   private _isSelected: boolean = false;
 
   constructor(topLeft: Point, size: Size) {
-    this._topLeft = topLeft;
-    this._size = size;
-  }
-
-  // Implementación de la interfaz Rectangle
-  get topLeft(): Point {
-    return this._topLeft;
-  }
-
-  get size(): Size {
-    return this._size;
-  }
-
-  // Getters y setters
-  get _x(): number {
-    return this._topLeft.x;
-  }
-
-  get _y(): number {
-    return this._topLeft.y;
-  }
-
-  get _w(): number {
-    return this._size.w;
-  }
-
-  get _h(): number {
-    return this._size.h;
+    super(topLeft, size);
   }
 
   get isSelected(): boolean {
@@ -46,16 +17,21 @@ export default class Box implements Rectangle {
     this._isSelected = value;
   }
 
+  public move(deltaPosition: Point): void {
+    // Change current position
+    this.changePosition({ x: this.topLeft.x + deltaPosition.x, y: this.topLeft.y + deltaPosition.y });
+  }
+
   public changePosition(newPosition: Point): void {
-    this._topLeft = newPosition;
+    this.topLeft = newPosition;
   }
 
   public isTriggered(clickWorldPos: Point): boolean {
     return (
-      clickWorldPos.x >= this._topLeft.x &&
-      clickWorldPos.x <= this._topLeft.x + this._size.w &&
-      clickWorldPos.y >= this._topLeft.y &&
-      clickWorldPos.y <= this._topLeft.y + this._size.h
+      clickWorldPos.x >= this.topLeft.x &&
+      clickWorldPos.x <= this.topLeft.x + this.size.w &&
+      clickWorldPos.y >= this.topLeft.y &&
+      clickWorldPos.y <= this.topLeft.y + this.size.h
     );
   }
 }

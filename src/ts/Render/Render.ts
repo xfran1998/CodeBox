@@ -10,6 +10,7 @@ export default class Render {
   private static _numRowsRender: number;
   private static _numColumnsRender: number;
   private static _renderBoxes: Array<BoxDialog> = [];
+  private static _bufferRenderBoxes: Array<BoxDialog> = [];
   private static _mainCamera: Camera;
   private static readonly offserRenderCells: number = 2; // number of cells to render outside the camera (in case a box is bigger than a cell and its outside the camera)
 
@@ -25,7 +26,7 @@ export default class Render {
     refGrid: Grid,
     camera: Camera
   ): void {
-    console.log("Render init");
+    // console.log("Render init");
     Render._mainCamera = camera;
 
     Render._numRowsRender =
@@ -64,6 +65,14 @@ export default class Render {
     return Render._cellSize;
   }
 
+  public static get mainCamera(): Camera {
+    return Render._mainCamera;
+  }
+
+  public static get bufferRenderBoxes(): Array<BoxDialog> {
+    return Render._bufferRenderBoxes;
+  }
+
   public static updateRenderBoxes(refGrid: Grid, hardReload: boolean = false): void {
     let topLeftCell: Point = Render._mainCamera.getTopLeftCell().topLeft;
     
@@ -76,9 +85,6 @@ export default class Render {
       return;
     }
 
-    console.log("topLeftCell: ", topLeftCell);
-    console.log("grid: ", refGrid.grid);
-    
     // Utiliza un set para mantener un registro eficiente de los nuevos boxes
     const newRenderBoxesSet = new Set<BoxDialog>();
 
@@ -110,8 +116,6 @@ export default class Render {
 
     // Actualiza topLeftCell en Render._topLeftCell
     Render._topLeftCell.topLeft = topLeftCell;
-
-    console.log("Render._renderBoxes: ", Render._renderBoxes);
 }
 
   public static drawGrid(ctx: CanvasRenderingContext2D, grid: Grid): void {
@@ -137,7 +141,7 @@ export default class Render {
     }
 
     // Dibuja las columnas
-    for (let i = 0; i < Render._numRowsRender; i++) {
+    for (let i = 0; i < Render._numColumnsRender; i++) {
       ctx.beginPath();
       ctx.moveTo(startLeft + i * Render._cellSize.w, 0);
       ctx.lineTo(startLeft + i * Render._cellSize.w, Render._mainCamera.size.h);
@@ -155,10 +159,11 @@ export default class Render {
     for (const box of Render._renderBoxes) {
       box.draw(ctx);
     }
-  }
 
-  public static addBox(box: BoxDialog): void {
-    Render._renderBoxes.push(box);
+    // Draw the buffer boxes
+    for (const box of Render._bufferRenderBoxes) {
+      box.draw(ctx);
+    }
   }
 
   public static getBoxesRender(): Array<BoxDialog> {
@@ -180,18 +185,46 @@ export default class Render {
   }
 
   public static setLastBox(box: BoxDialog): void {
-    console.log("box: ", box);
-
     const index = Render._renderBoxes.indexOf(box);
 
     if (index === -1) {
-      console.log("Box not found");
       return;
     }
 
     Render._renderBoxes.splice(index, 1);
     Render._renderBoxes.push(box);    
+  }
 
-    console.log("Render._renderBoxes: ", Render._renderBoxes);
+  public static addBox(box: BoxDialog): void {
+    // check if the box is already in the array
+    if (Render._renderBoxes.indexOf(box) !== -1) {
+      return;
+    }
+
+    Render._renderBoxes.push(box);
+  }
+
+  public static removeBox(box: BoxDialog): void {
+    const index = Render._renderBoxes.indexOf(box);
+
+    if (index === -1) {
+      return;
+    }
+
+    Render._renderBoxes.splice(index, 1);
+  }
+
+  public static addBufferBox(box: BoxDialog): void {
+    Render._bufferRenderBoxes.push(box);
+  }
+
+  public static removeBufferBox(box: BoxDialog): void {
+    const index = Render._bufferRenderBoxes.indexOf(box);
+
+    if (index === -1) {
+      return;
+    }
+
+    Render._bufferRenderBoxes.splice(index, 1);
   }
 }

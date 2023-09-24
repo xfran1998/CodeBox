@@ -38,13 +38,12 @@ h1 {
 
 .card {
   padding: 0.25em;
-  border-bottom: 1px solid #4951e7af;
+  /* border-bottom: 1px solid #4951e7af; */
 }
 
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
