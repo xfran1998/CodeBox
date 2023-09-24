@@ -56,11 +56,5 @@ export default class CircleComponent extends Component implements Circle {
     ctx.stroke();
     ctx.fillStyle = "#555";
     ctx.fill();
-
-    console.log("CircleComponent draw", ctx);
   }
 }
-
-
-
-

@@ -14,7 +14,6 @@ export default class VariableComponent extends CircleComponent {
   }
 
   draw(ctx: CanvasRenderingContext2D, offset: Point) {
-    console.log("VariableComponent draw", ctx);
     super.draw(ctx, offset);
   }
 }

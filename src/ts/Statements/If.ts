@@ -33,7 +33,6 @@ export default class If extends BoxDialog{
     const viewPoint = this.getViewPos();
 
     this._components.forEach((component) => {
-      console.log(component);
       component.draw(ctx, viewPoint);
     });
   }

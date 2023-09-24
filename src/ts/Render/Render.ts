@@ -170,6 +170,10 @@ export default class Render {
     return Render._renderBoxes;
   }
 
+  public static getBufferBoxesRender(): Array<BoxDialog> {
+    return Render._bufferRenderBoxes;
+  }
+
   public static viewToWorld(screenPosition: Point): Point {
     return {
       x: screenPosition.x + Render._mainCamera.position.x - Render._mainCamera.size.w / 2,
